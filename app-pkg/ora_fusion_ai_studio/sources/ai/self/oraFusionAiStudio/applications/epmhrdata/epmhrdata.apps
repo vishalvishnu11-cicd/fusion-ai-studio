@@ -1,0 +1,54 @@
+{
+  "id": "300000033905588",
+  "name": "EPMHRData",
+  "code": "EPMHRDATA",
+  "version": 1,
+  "status": "DRAFT",
+  "internalName": "EPMHRData",
+  "internalDescription": "Getting data from EPBCS",
+  "specification": {
+    "applicationMetadata": {
+      "title": "",
+      "enableFileUpload": true,
+      "pagePattern": "swimlanesPattern",
+      "pageConfig": {
+        "agentContainers": [],
+        "layout": "1",
+        "firstLane": [],
+        "secondLane": []
+      },
+      "agents": {},
+      "communications": [
+        {
+          "id": "comm_1786685008285",
+          "title": "New Communication",
+          "description": ""
+        },
+        {
+          "id": "comm_1788438428030",
+          "title": "New Communication",
+          "description": "",
+          "templateId": "global:300000033668775",
+          "actionText": ""
+        }
+      ]
+    }
+  },
+  "createdBy": "SUDHIR.SINHA@ORACLE.COM",
+  "updatedBy": "SUDHIR.SINHA@ORACLE.COM",
+  "seededFlag": false,
+  "customizationPolicy": null,
+  "$id": "300000033905588",
+  "$context": {
+    "etag": "6",
+    "links": {
+      "$self": {
+        "href": "https://iacziz-dev6.fa.ocs.oraclecloud.com/api/boss/data/objects/ora/commonFusionAI/agents/v1/$en/applications/300000033905588"
+      }
+    }
+  },
+  "customizedSpecifications": {
+    "items": [],
+    "hasMore": false
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "workflowCode": "DEMODEBUG",
+  "specification": {
+    "jsonSchemaName": "Workflow.spec",
+    "jsonSchemaVersion": "1",
+    "inputs": [],
+    "outputSpecification": " ",
+    "agentsValueMappings": [],
+    "dataPipeline": {
+      "pipelineNodes": [
+        {
+          "metadata": {
+            "description": "Start of data pipeline",
+            "name": "Start"
+          },
+          "outcomes": {
+            "success": "1770884646562"
+          },
+          "code": "START",
+          "id": "start",
+          "inputs": [],
+          "type": "START",
+          "diagram": {
+            "x": 5000,
+            "y": 5008
+          }
+        },
+        {
+          "metadata": {
+            "name": "Initialize Variables"
+          },
+          "outcomes": {
+            "success": "1770726220716"
+          },
+          "code": "INITVARS_1",
+          "id": "1770884646562",
+          "inputs": [
+            {
+              "id": "1772785302278",
+              "name": "emailCCAddress",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "1771011426127",
+              "name": "overdueSupplyWindow",
+              "type": "integer",
+              "value": "60"
+            },
+            {
+              "id": "1770893449191",
+              "name": "delayedSupplyWindow",
+              "type": "integer",
+              "value": "90"
+            },
+            {
+              "id": "1770884681289",
+              "name": "priceHistoryWindow",
+              "type": "integer",
+              "value": "60"
+            }
+          ],
+          "type": "SET_FIELDS",
+          "diagram": {
+            "x": 5206,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "name": "Read Input"
+          },
+          "outcomes": {
+            "success": "1770728848677"
+          },
+          "code": "PARSEINPUT",
+          "id": "1770726220716",
+          "inputs": [
+            {
+              "id": "1770726220716_1",
+              "name": "prompt",
+              "type": "string",
+              "value": "-Parse user input \"\" {{$context.$system.$inputMessage}} \"\" for user intent and set variable values as per below rules:\n1) \"itemNumber\" with item number in user input.\n2) \"itemDescription\" with item description in user input.\n3) \"supplierName\" with supplier or vendor name in user input. For supplierName prefer proper nouns and common vendor keywords (Inc, Ltd, Co.).  Understand that user input could sometimes contain site name eg- SupplierName (Site) , exclude site while extrating supplier. \n4) \"referencePO\" with Purchase Order number (PO) in user input.\n5) priceHistoryAnchor: string (YYYY-MM-DD) = {{$context.$system.$currentDate}} minus {{$context.$variables.priceHistoryWindow}} days.\n6) delayedSupplyAnchor: string (YYYY-MM-DD) = {{$context.$system.$currentDate}} plus {{$context.$variables.delayedSupplyWindow}} days.\n7) overdueSupplyAnchor: string (YYYY-MM-DD) = {{$context.$system.$currentDate}} minus {{$context.$variables.overdueSupplyWindow}} days.\n8) Scenario mapping (choose single best scenario) for user intent:\n   - 10 : Get Delayed Orders or supply.\n   - 20 : Get (alternate/approved) supplier for given item.\n   - 30 : Create (alternate) purchase order.\n   - 40 : Get overdue Orders or supply (past due orders already delayed).\n   - 45 : Send email to Supplier about overdue/Delayed orders.\n   - 50 : Suggest 'Category' for ItemDescription.\n   - 60 : Suggest 'Price' for Item.\n   - 0  : Everything else / unknown."
+            }
+          ],
+          "outputSpecification": "{\n    \"$schema\": \"http://json-schema.org/draft-04/schema#\",\n    \"type\": \"object\",\n    \"properties\": {\n        \"overdueSupplyAnchor\": {\n            \"type\": \"string\"\n        },\n        \"delayedSupplyAnchor\": {\n            \"type\": \"string\"\n        },\n        \"referencePO\": {\n            \"type\": \"string\"\n        },\n        \"itemNumber\": {\n            \"type\": \"string\"\n        },\n        \"itemDescription\": {\n            \"type\": \"string\"\n        },\n        \"scenario\": {\n            \"type\": \"number\"\n        },\n        \"priceHistoryAnchor\": {\n            \"type\": \"string\"\n        },\n        \"supplierName\": {\n            \"type\": \"string\"\n        }\n    }\n}",
+          "type": "LLM",
+          "diagram": {
+            "x": 5656,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "name": "Initialize User Input"
+          },
+          "outcomes": {
+            "success": "1770726607304"
+          },
+          "code": "INITVARS",
+          "id": "1770728848677",
+          "inputs": [
+            {
+              "id": "1770887361347",
+              "name": "supplier",
+              "type": "string",
+              "value": "{{$context.$nodes.PARSEINPUT.$output.supplierName}}"
+            },
+            {
+              "id": "1770728882432",
+              "name": "scenario",
+              "type": "integer",
+              "value": "{{$context.$nodes.PARSEINPUT.$output.scenario}}"
+            },
+            {
+              "id": "1770728870342",
+              "name": "itemNumber",
+              "type": "string",
+              "value": "{{$context.$nodes.PARSEINPUT.$output.itemNumber}}"
+            },
+            {
+              "id": "1770728857239",
+              "name": "itemDescription",
+              "type": "string",
+              "value": "{{$context.$nodes.PARSEINPUT.$output.itemDescription}}"
+            }
+          ],
+          "type": "SET_FIELDS",
+          "diagram": {
+            "x": 6106,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "name": "Scenario Switch"
+          },
+          "outcomes": {
+            "10": "1770888050218"
+          },
+          "code": "SCENERIOSWITCH",
+          "convergenceTargetId": "end",
+          "id": "1770726607304",
+          "inputs": [
+            {
+              "id": "1770726607305_1",
+              "name": "caseExpression",
+              "type": "string",
+              "value": "{{$context.$variables.scenario}}"
+            }
+          ],
+          "type": "SWITCH",
+          "diagram": {
+            "x": 6556,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "name": "setDelayedFilter",
+            "returnType": "string",
+            "sourceCode": "const result = \"Status='Open' AND lines.Status='Open' AND ((lines.schedules.PromisedDeliveryDate > '2026-08-20' AND lines.schedules.PromisedDeliveryDate < '2026-11-18') OR ( lines.schedules.RequestedDeliveryDate > '2026-08-20' AND lines.schedules.RequestedDeliveryDate < '2026-11-18' ))\";\nreturn result;"
+          },
+          "outcomes": {
+            "success": "1770887827664"
+          },
+          "code": "SETDELAYEDFILTER",
+          "id": "1770888050218",
+          "inputs": [],
+          "outputSpecification": "{\n  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"result\": {\n      \"type\": \"object\"\n    },\n    \"timeout\": {\n      \"type\": \"boolean\"\n    },\n    \"error\": {\n      \"type\": \"string\"\n    }\n  },\n  \"additionalProperties\": false,\n  \"required\": [\n    \"result\",\n    \"timeout\",\n    \"error\"\n  ]\n}",
+          "type": "CODE",
+          "diagram": {
+            "x": 7006,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "businessObjectCode": "ORA_PRC_PURCHASING_PURCHASEORDERSC",
+            "functionName": "getall_purchaseOrders",
+            "name": "Get Delayed Orders"
+          },
+          "outcomes": {
+            "success": "1770888686183"
+          },
+          "code": "GETDELAYEDORDERS",
+          "id": "1770887827664",
+          "inputs": [
+            {
+              "id": "1770887854255_1",
+              "name": "q_parameter",
+              "value": "{{$context.$nodes.SETDELAYEDFILTER.$output.result}}",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "id": "1770887854255_2",
+              "name": "pLimit",
+              "value": "500",
+              "required": true
+            },
+            {
+              "id": "1770887854256_4",
+              "name": "pFields",
+              "value": "OrderNumber,Supplier,SupplierSite,OrderDate;lines:Item,Status;lines.schedules:RequestedDeliveryDate,PromisedDeliveryDate,Quantity",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "outputSpecification": "{}",
+          "type": "BO_FUNCTION",
+          "diagram": {
+            "x": 7456,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "name": "Suggest Delayed Orders"
+          },
+          "outcomes": {
+            "success": "end"
+          },
+          "code": "SUGGESTDELAYEDORDERS",
+          "id": "1770888686183",
+          "inputs": [
+            {
+              "id": "1770888686184_1",
+              "name": "prompt",
+              "type": "string",
+              "value": "-Review REST API response:  {{$context.$nodes.GETDELAYEDORDERS.$output}} \n- Include lines where lines.Status='Open' AND 'PromisedDeliveryDate > RequestedDeliveryDate'. \n- Exclude lines where 'PromisedDeliveryDate is less than or equal to RequestedDeliveryDate' or 'RequestedDeliveryDate' is less than {{$context.$system.$currentDate}}.\n- If Item number is available in user input - Filter records only for Item {{$context.$variables.itemNumber}} .\n- Calculate 'Delay' in days as difference between PromisedDeliveryDate and RequestedDeliveryDate. \n- Output: Strictly display Order , Supplier (Site), Item, RequestedDeliveryDate, PromisedDeliveryDate, Delay. Sort the output by Delay desc. \n- Display output in HTML table with border."
+            }
+          ],
+          "type": "LLM",
+          "diagram": {
+            "x": 7906,
+            "y": 5000
+          }
+        },
+        {
+          "metadata": {
+            "description": "End of data pipeline",
+            "name": "End"
+          },
+          "outcomes": {},
+          "code": "END",
+          "id": "end",
+          "inputs": [],
+          "type": "END"
+        }
+      ],
+      "rootNode": "start",
+      "variables": [
+        {
+          "id": "1772785278614",
+          "name": "emailCCAddress",
+          "scope": "JOB",
+          "type": "string"
+        },
+        {
+          "id": "1771011377021",
+          "name": "overdueSupplyWindow",
+          "scope": "JOB",
+          "type": "integer"
+        },
+        {
+          "id": "1770887955520",
+          "name": "delayedSupplyWindow",
+          "scope": "JOB",
+          "type": "integer"
+        },
+        {
+          "id": "1770887295333",
+          "name": "supplier",
+          "scope": "JOB",
+          "type": "string"
+        },
+        {
+          "id": "1770731626554",
+          "name": "priceHistoryWindow",
+          "scope": "JOB",
+          "type": "integer"
+        },
+        {
+          "id": "1770728811567",
+          "name": "itemDescription",
+          "scope": "JOB",
+          "type": "string"
+        },
+        {
+          "id": "1770727188342",
+          "name": "itemNumber",
+          "scope": "JOB",
+          "type": "string"
+        },
+        {
+          "id": "1770726305023",
+          "name": "scenario",
+          "scope": "JOB",
+          "type": "integer"
+        }
+      ],
+      "errorHandlers": []
+    },
+    "modelConfiguration": null,
+    "humanApprovalFlag": false,
+    "waitFlag": false,
+    "triggers": [
+      {
+        "type": "REST",
+        "inputs": []
+      }
+    ],
+    "costSavings": 0,
+    "timeSavings": 10,
+    "chatExpTPFileUploadEnabledFlag": false,
+    "chatExpThirdPartyDetails": [],
+    "policyIds": [],
+    "defaultModelConfiguration": "ORA_MODEL_CONFIG_PREMIUM_OPEN_AI_GPT_4_1_MINI",
+    "diagram": {
+      "orientation": "horizontal",
+      "commentNodes": []
+    }
+  },
+  "name": "Demo- Debug",
+  "description": "Agent Team to help users with:\n1. Identifying purchase orders with delayed supply.\n2. Finding alternate supplier for given item.\n3. Create purchase order.\n4. Identifying past due orders.\n5. Suggest 'Category' based on Item description.\n6. Suggest 'Price' for Item.",
+  "family": "PRC",
+  "product": "PURCHASING",
+  "workflowId": "300000034331014",
+  "ownerName": null,
+  "seededFlag": false,
+  "hiddenFlag": false,
+  "status": "DRAFT",
+  "version": 87230037,
+  "useCaseId": "NA",
+  "accessModifier": "public",
+  "architecture": "data_pipeline",
+  "followupPrompt": "Based on the following conversion: $param.system_context.chat_history generate $param.system_context.number_of_follow_up_questions\nfollow up questions only while strictly adhering to the JSON Schema format mentioned below. Remove the ```json markdown from the output.\nHere is the JSON Schema format the output should adhere to:\n[{\"question\": \"<put first question generated here>\"}, {\"question\": \"<put second question generated here>\"}, {\"question\": \"<put third question generated here>\"}",
+  "firstStarterQuestion": null,
+  "secondStarterQuestion": null,
+  "thirdStarterQuestion": null,
+  "followupEnabledFlag": false,
+  "maxInteractions": null,
+  "customFlag": false,
+  "sourceWorkflowCode": null,
+  "customizationPolicy": null,
+  "emailConfigCode": null,
+  "jobRequestId": null,
+  "aiAppsCompatibleFlag": false,
+  "isTemplate": false,
+  "ownerId": null,
+  "$id": "300000034331014",
+  "$context": {
+    "etag": "58",
+    "links": {
+      "$self": {
+        "href": "https://iacziz-dev6.fa.ocs.oraclecloud.com/api/boss/data/objects/ora/commonFusionAI/agents/v1/$en/workflows/300000034331014"
+      }
+    }
+  },
+  "tags": [],
+  "roles": [],
+  "seededRoles": [],
+  "customizedSpecifications": [],
+  "initialTags": [],
+  "initialRoles": []
+}
